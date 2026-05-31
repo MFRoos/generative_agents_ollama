@@ -82,16 +82,29 @@ def execute(persona, maze, personas, plan):
       target_tiles = maze.address_tiles[plan]
       target_tiles = random.sample(list(target_tiles), 1)
 
-    else: 
-      # This is our default execution. We simply take the persona to the
-      # location where the current action is taking place. 
-      # Retrieve the target addresses. Again, plan is an action address in its
-      # string form. <maze.address_tiles> takes this and returns candidate 
-      # coordinates. 
-      if plan not in maze.address_tiles: 
-        maze.address_tiles["Johnson Park:park:park garden"] #ERRORRRRRRR
-      else: 
+    else:
+      # Sanitize plan address — small LLMs sometimes include stray JSON
+      # punctuation (e.g. '{main room' instead of 'main room').
+      plan_parts = plan.split(":")
+      plan_parts = [p.strip().strip('{}"\' ') for p in plan_parts]
+      plan = ":".join(plan_parts)
+
+      if plan in maze.address_tiles:
         target_tiles = maze.address_tiles[plan]
+      else:
+        # Try progressively shorter prefixes (world:sector:arena → world:sector)
+        found = False
+        for n in range(len(plan_parts) - 1, 0, -1):
+          prefix = ":".join(plan_parts[:n])
+          if prefix in maze.address_tiles:
+            print(f"[execute] address '{plan}' not found, falling back to '{prefix}'")
+            target_tiles = maze.address_tiles[prefix]
+            found = True
+            break
+        if not found:
+          # Last resort: stay on current tile
+          print(f"[execute] address '{plan}' not found in maze, staying in place")
+          target_tiles = [persona.scratch.curr_tile]
 
     # There are sometimes more than one tile returned from this (e.g., a tabe
     # may stretch many coordinates). So, we sample a few here. And from that 
