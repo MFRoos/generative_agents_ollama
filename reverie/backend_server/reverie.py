@@ -145,13 +145,15 @@ class ReverieServer:
     # simulation. 
     curr_sim_code = dict()
     curr_sim_code["sim_code"] = self.sim_code
-    with open(f"{fs_temp_storage}/curr_sim_code.json", "w") as outfile: 
+    with open(f"{fs_temp_storage}/curr_sim_code.json", "w") as outfile:
       outfile.write(json.dumps(curr_sim_code, indent=2))
-    
+    print(f"[reverie] wrote curr_sim_code.json: {self.sim_code}")
+
     curr_step = dict()
     curr_step["step"] = self.step
-    with open(f"{fs_temp_storage}/curr_step.json", "w") as outfile: 
+    with open(f"{fs_temp_storage}/curr_step.json", "w") as outfile:
       outfile.write(json.dumps(curr_step, indent=2))
+    print(f"[reverie] wrote curr_step.json: step={self.step}")
 
 
   def save(self): 
@@ -409,12 +411,11 @@ class ReverieServer:
           int_counter -= 1
 
           # Rewrite curr_step.json so the frontend can always find it.
-          # The frontend deletes this file after reading it, so we must
-          # replenish it after every step.
           curr_step = dict()
           curr_step["step"] = self.step
           with open(f"{fs_temp_storage}/curr_step.json", "w") as outfile:
             outfile.write(json.dumps(curr_step, indent=2))
+          print(f"[reverie] step complete — updated curr_step.json: step={self.step}")
           
       # Sleep so we don't burn our machines. 
       time.sleep(self.server_sleep)

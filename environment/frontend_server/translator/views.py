@@ -106,18 +106,23 @@ def home(request):
   f_curr_sim_code = "temp_storage/curr_sim_code.json"
   f_curr_step = "temp_storage/curr_step.json"
 
-  if not check_if_file_exists(f_curr_step): 
+  print(f"[home] checking for {f_curr_step} — exists: {os.path.exists(f_curr_step)}")
+
+  if not check_if_file_exists(f_curr_step):
+    print("[home] curr_step.json not found — showing error page")
     context = {}
     template = "home/error_start_backend.html"
     return render(request, template, context)
 
-  with open(f_curr_sim_code) as json_file:  
+  with open(f_curr_sim_code) as json_file:
     sim_code = json.load(json_file)["sim_code"]
-  
-  with open(f_curr_step) as json_file:  
+
+  with open(f_curr_step) as json_file:
     step = json.load(json_file)["step"]
 
-  os.remove(f_curr_step)
+  # Do NOT delete curr_step.json — the backend rewrites it every step,
+  # so keeping it lets the page survive a browser refresh.
+  print(f"[home] loaded sim_code={sim_code} step={step}")
 
   persona_names = []
   persona_names_set = set()
