@@ -434,8 +434,8 @@ def run_gpt_prompt_task_decomp(persona,
     except:
       return False
 
-  def get_fail_safe(): 
-    fs = ["asleep"]
+  def get_fail_safe():
+    fs = [["asleep", duration]]
     return fs
 
   gpt_param = {"engine": "text-davinci-003", "max_tokens": 1000, 
