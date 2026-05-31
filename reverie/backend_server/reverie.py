@@ -426,6 +426,12 @@ class ReverieServer:
     print ("constructs powered by generative agents architecture and LLM. We")
     print ("clarify that these agents lack human-like agency, consciousness,")
     print ("and independent decision-making.\n---")
+    print ("Options:")
+    print ("  run <n>  -- run the simulation for n steps (e.g. 'run 100')")
+    print ("  save     -- save current progress")
+    print ("  fin      -- save and exit")
+    print ("  exit     -- exit without saving")
+    print ("---")
 
     # <sim_folder> points to the current simulation folder.
     sim_folder = f"{fs_storage}/{self.sim_code}"
@@ -605,7 +611,10 @@ if __name__ == '__main__':
   #                    "July1_the_ville_isabella_maria_klaus-step-3-21")
   # rs.open_server()
 
-  origin = input("Enter the name of the forked simulation: ").strip()
+  default_fork = "base_the_ville_isabella_maria_klaus"
+  origin = input(f"Enter the name of the forked simulation (default: {default_fork}): ").strip()
+  if not origin:
+    origin = default_fork
   target = input("Enter the name of the new simulation: ").strip()
 
   rs = ReverieServer(origin, target)
