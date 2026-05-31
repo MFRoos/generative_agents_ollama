@@ -3,9 +3,12 @@ set -e
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
+# Apply any pending migrations
+cd "$ROOT/environment/frontend_server"
+python manage.py migrate --run-syncdb -v 0
+
 # Start the environment server in the background
 echo "Starting environment server at http://localhost:8000 ..."
-cd "$ROOT/environment/frontend_server"
 python manage.py runserver &
 ENV_PID=$!
 
