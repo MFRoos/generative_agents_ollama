@@ -361,21 +361,32 @@ def run_gpt_prompt_task_decomp(persona,
     print (gpt_response)
     print ("-==- -==- -==- ")
 
-    # TODO SOMETHING HERE sometimes fails... See screenshot
     temp = [i.strip() for i in gpt_response.split("\n")]
     _cr = []
     cr = []
-    for count, i in enumerate(temp): 
-      if count != 0: 
-        _cr += [" ".join([j.strip () for j in i.split(" ")][3:])]
-      else: 
+    for count, i in enumerate(temp):
+      if count != 0:
+        _cr += [" ".join([j.strip() for j in i.split(" ")][3:])]
+      else:
         _cr += [i]
-    for count, i in enumerate(_cr): 
+    for count, i in enumerate(_cr):
+      if not i:
+        continue
       k = [j.strip() for j in i.split("(duration in minutes:")]
-      task = k[0]
-      if task[-1] == ".": 
+      task = k[0].strip()
+      if not task:
+        continue
+      if task[-1] == ".":
         task = task[:-1]
-      duration = int(k[1].split(",")[0].strip())
+      # If the model omitted the duration marker, skip the line gracefully
+      if len(k) < 2:
+        print(f"[task_decomp] skipping malformed line (no duration): {i!r}")
+        continue
+      try:
+        duration = int(k[1].split(",")[0].strip())
+      except (ValueError, IndexError):
+        print(f"[task_decomp] skipping malformed duration in line: {i!r}")
+        continue
       cr += [[task, duration]]
 
     total_expected_min = int(prompt.split("(total duration in minutes")[-1]
@@ -413,14 +424,12 @@ def run_gpt_prompt_task_decomp(persona,
 
     return cr
 
-  def __func_validate(gpt_response, prompt=""): 
-    # TODO -- this sometimes generates error 
-    try: 
-      __func_clean_up(gpt_response)
-    except: 
-      pass
-      # return False
-    return gpt_response
+  def __func_validate(gpt_response, prompt=""):
+    try:
+      result = __func_clean_up(gpt_response)
+      return len(result) > 0
+    except:
+      return False
 
   def get_fail_safe(): 
     fs = ["asleep"]
