@@ -395,21 +395,24 @@ def run_gpt_prompt_task_decomp(persona,
     # TODO -- now, you need to make sure that this is the same as the sum of 
     #         the current action sequence. 
     curr_min_slot = [["dummy", -1],] # (task_name, task_index)
-    for count, i in enumerate(cr): 
-      i_task = i[0] 
+    for count, i in enumerate(cr):
+      i_task = i[0]
       i_duration = i[1]
-
       i_duration -= (i_duration % 5)
-      if i_duration > 0: 
-        for j in range(i_duration): 
-          curr_min_slot += [(i_task, count)]       
-    curr_min_slot = curr_min_slot[1:]   
+      if i_duration > 0:
+        for j in range(i_duration):
+          curr_min_slot += [(i_task, count)]
+    curr_min_slot = curr_min_slot[1:]
 
-    if len(curr_min_slot) > total_expected_min: 
-      last_task = curr_min_slot[60]
-      for i in range(1, 6): 
+    # Fall back to a default slot if the model returned nothing usable
+    if not curr_min_slot:
+      curr_min_slot = [("sleeping", 0)] * total_expected_min
+
+    if len(curr_min_slot) > total_expected_min:
+      last_task = curr_min_slot[min(60, len(curr_min_slot) - 1)]
+      for i in range(1, 6):
         curr_min_slot[-1 * i] = last_task
-    elif len(curr_min_slot) < total_expected_min: 
+    elif len(curr_min_slot) < total_expected_min:
       last_task = curr_min_slot[-1]
       for i in range(total_expected_min - len(curr_min_slot)):
         curr_min_slot += [last_task]
